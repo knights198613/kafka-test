@@ -15,25 +15,36 @@ import java.util.concurrent.Future;
  * Desc: 生产端启动类
  */
 public class ProducerBootStrap {
+    private KafkaMsProducer producer = null;
+    ApplicationContext context = null;
+    int times = 10000;
 
     public static void main(String[] args) {
-        ApplicationContext context = new ClassPathXmlApplicationContext("classpath:spring.xml");
-        KafkaMsProducer producer = (KafkaMsProducer)context.getBean("kafkaProducer");
-        User user = new User();
-        user.setId(1);
-        user.setAge(25);
-        user.setName("weijiang");
-        user.setEmail("weijiang@jd.com");
-        Future<RecordMetadata> metadataFuture = producer.sendMessage(user.toString());
-        try {
-            RecordMetadata recordMetadata = metadataFuture.get();
-            String topic = recordMetadata.topic();
-            System.out.println("数据发送的topic为："+ topic);
+        ProducerBootStrap bootStrap = new ProducerBootStrap();
+        bootStrap.doProduce();
+    }
 
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        } catch (ExecutionException e) {
-            e.printStackTrace();
+    public void doProduce() {
+        context = new ClassPathXmlApplicationContext("classpath:spring.xml");
+        producer = (KafkaMsProducer)context.getBean("kafkaProducer");
+        while (times > 0) {
+            User user = new User();
+            user.setId(times);
+            user.setAge(times);
+            user.setName("weijiang_"+String.valueOf(times));
+            user.setEmail("weijiang_"+String.valueOf(times)+"@jd.com");
+            Future<RecordMetadata> metadataFuture = producer.sendMessage(user.toString());
+            try {
+                RecordMetadata recordMetadata = metadataFuture.get();
+                String topic = recordMetadata.topic();
+                System.out.println("数据发送的topic为：" + topic);
+
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            } catch (ExecutionException e) {
+                e.printStackTrace();
+            }
+            times--;
         }
     }
 }
