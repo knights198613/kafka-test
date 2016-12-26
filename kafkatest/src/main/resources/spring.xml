@@ -11,4 +11,15 @@
         <property name="kafkaServers" value="${kafka.servers}"/>
         <property name="topic" value="${kafka.topic}"/>
     </bean>
+
+    <bean id="abstractMsConsumer" abstract="true" class="com.jiangwei.kafkatest.msconsumer.AbstractMsConsumer">
+
+    </bean>
+
+    <bean id="kafkaMsConsumer" class="com.jiangwei.kafkatest.msconsumer.impl.KafkaMsConsumerRuner" init-method="init">
+        <property name="kafkaServers" value="${kafka.servers}"/>
+        <property name="topic" value="${kafka.topic}"/>
+        <property name="consumerGroup" value="${kafka.consumer.groupId}"/>
+        <property name="enableAutoCommit" value="false"/>
+    </bean>
 </beans>

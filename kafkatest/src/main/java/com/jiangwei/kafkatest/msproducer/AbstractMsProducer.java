@@ -8,7 +8,7 @@ import java.util.concurrent.Future;
  * Date: 2016/11/25
  * Desc: 生产端的抽象类
  */
-public class AbstractMsProducer implements MsProducer {
+public abstract class AbstractMsProducer implements MsProducer {
 
     public Future sendMessage(Object message) {
         return null;

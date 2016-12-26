@@ -33,11 +33,13 @@ public class ProducerBootStrap {
             user.setAge(times);
             user.setName("weijiang_"+String.valueOf(times));
             user.setEmail("weijiang_"+String.valueOf(times)+"@jd.com");
+            System.out.println(user.toString());
             Future<RecordMetadata> metadataFuture = producer.sendMessage(user.toString());
             try {
                 RecordMetadata recordMetadata = metadataFuture.get();
                 String topic = recordMetadata.topic();
-                System.out.println("数据发送的topic为：" + topic);
+                int partition =  recordMetadata.partition();
+                System.out.println("数据发送的topic为：" + topic+",发送至patition:"+partition);
 
             } catch (InterruptedException e) {
                 e.printStackTrace();
