@@ -37,7 +37,9 @@ public class KafkaMsConsumerRuner extends AbstractMsConsumer implements Runnable
     }
 
     public void consumerMessage() {
-
+        for(ConsumerRecord<String,String> record : bufferList) {
+            System.out.println("结果为："+record.key()+"__"+record.value());
+        }
     }
 
     public void run() {
@@ -57,9 +59,7 @@ public class KafkaMsConsumerRuner extends AbstractMsConsumer implements Runnable
                 }
 
                 if(bufferList.size() > MIN_BATCH_SIZE) {
-                    for(ConsumerRecord<String,String> record : bufferList) {
-                        System.out.println("结果为："+record.key()+"__"+record.value());
-                    }
+                    this.consumerMessage();
                     kafkaConsumer.commitSync();
                     bufferList.clear();
                 }
