@@ -1,6 +1,7 @@
 package com.jiangwei.kafkatest.msproducer;
 
-import javax.security.auth.callback.Callback;
+import org.apache.kafka.clients.producer.Callback;
+
 import java.util.concurrent.Future;
 
 /**

@@ -1,6 +1,7 @@
 package com.jiangwei.kafkatest.msproducer;
 
-import javax.security.auth.callback.Callback;
+import org.apache.kafka.clients.producer.Callback;
+
 import java.util.concurrent.Future;
 
 /**
@@ -10,13 +11,9 @@ import java.util.concurrent.Future;
  */
 public abstract class AbstractMsProducer implements MsProducer {
 
-    public Future sendMessage(Object message) {
-        return null;
-    }
+    public abstract Future sendMessage(Object message);
 
-    public Future sendMessage(Object message, Callback callback) {
-        return null;
-    }
+    public abstract Future sendMessage(Object message, Callback callback);
 
 
 }

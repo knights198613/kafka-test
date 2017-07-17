@@ -1,13 +1,11 @@
 package com.jiangwei.kafkatest.msproducer.impl;
 
 import com.jiangwei.kafkatest.msproducer.AbstractMsProducer;
-import com.jiangwei.kafkatest.msproducer.MsProducer;
+import org.apache.kafka.clients.producer.Callback;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.clients.producer.ProducerRecord;
-import org.apache.kafka.clients.producer.internals.ProduceRequestResult;
 
-import javax.security.auth.callback.Callback;
 import java.util.Properties;
 import java.util.concurrent.Future;
 
@@ -21,18 +19,19 @@ public class KafkaMsProducer extends AbstractMsProducer{
     private String kafkaServers;
     private String topic;
     private KafkaProducer kafkaProducer;
-    private ProducerRecord producerRecord;
+    //private ProducerRecord producerRecord;
 
 
     @Override
     public Future sendMessage(Object message) {
-        producerRecord = new ProducerRecord(getTopic(), message);
+        ProducerRecord producerRecord = new ProducerRecord(getTopic(), message);
         return kafkaProducer.send(producerRecord);
     }
 
     @Override
     public Future sendMessage(Object message, Callback callback) {
-        return super.sendMessage(message, callback);
+        ProducerRecord producerRecord = new ProducerRecord(getTopic(), message);
+        return kafkaProducer.send(producerRecord, callback);
     }
 
     /**
