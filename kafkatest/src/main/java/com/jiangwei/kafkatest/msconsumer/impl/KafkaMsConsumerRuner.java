@@ -7,10 +7,7 @@ import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.apache.kafka.common.errors.WakeupException;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Properties;
+import java.util.*;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -39,8 +36,10 @@ public class KafkaMsConsumerRuner extends AbstractMsConsumer implements Runnable
 
     public void consumerMessage() {
         try {
-            ConsumerRecord<Object, Object> consumerRecord =  bufferList.take();
-            System.out.println(" 消费结果为：key_"+consumerRecord.key()+", value_"+consumerRecord.value()+", partition_"+consumerRecord.partition());
+            for(Iterator iterator = bufferList.iterator(); iterator.hasNext(); iterator.next()) {
+                ConsumerRecord<Object, Object> consumerRecord = bufferList.take();
+                System.out.println(" 消费结果为：key_" + consumerRecord.key() + ", value_" + consumerRecord.value() + ", partition_" + consumerRecord.partition());
+            }
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
