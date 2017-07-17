@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Properties;
+import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
@@ -23,7 +24,7 @@ public class KafkaMsConsumerRuner extends AbstractMsConsumer implements Runnable
     private static final AtomicBoolean closed = new AtomicBoolean(false);
     private static final int MAX_POLL_TIMEOUT = 100000;
     private static final int MIN_BATCH_SIZE = 0;
-    List<ConsumerRecord<String,String>> bufferList = new ArrayList<ConsumerRecord<String, String>>();
+    ArrayBlockingQueue<ConsumerRecord<Object,Object>> bufferList = new ArrayBlockingQueue<ConsumerRecord<Object, Object>>(1024, true);
 
 
 
@@ -37,31 +38,43 @@ public class KafkaMsConsumerRuner extends AbstractMsConsumer implements Runnable
     }
 
     public void consumerMessage() {
-        for(ConsumerRecord<String,String> record : bufferList) {
-            System.out.println("结果为："+record.key()+"__"+record.value());
+        try {
+            ConsumerRecord<Object, Object> consumerRecord =  bufferList.take();
+            System.out.println(" 消费结果为：key_"+consumerRecord.key()+", value_"+consumerRecord.value()+", partition_"+consumerRecord.partition());
+        } catch (InterruptedException e) {
+            e.printStackTrace();
         }
+
     }
 
     public void run() {
-        KafkaConsumer<String, String> kafkaConsumer;
+        KafkaConsumer<Object, Object> kafkaConsumer;
         kafkaConsumer = new KafkaConsumer(this.getProp());
         kafkaConsumer.subscribe(Arrays.asList(getTopic()));
+        List<ConsumerRecord<Object, Object>> consumerRecordList = new ArrayList<ConsumerRecord<Object, Object>>();
         try {
 
             while (!this.closed.get()) {
-                ConsumerRecords<String, String> consumerRecords = kafkaConsumer.poll(this.MAX_POLL_TIMEOUT);
+                ConsumerRecords<Object, Object> consumerRecords = kafkaConsumer.poll(this.MAX_POLL_TIMEOUT);
                 /*for(TopicPartition topicPartition : consumerRecords.partitions()) {
                     int partition = topicPartition.partition();
                     System.out.println("消费端消费的partion:"+partition);
                 }*/
-                for(ConsumerRecord<String,String> consumerRecord : consumerRecords) {
-                    bufferList.add(consumerRecord);
+                for(ConsumerRecord<Object,Object> consumerRecord : consumerRecords) {
+                    consumerRecordList.add(consumerRecord);
                 }
 
-                if(bufferList.size() > MIN_BATCH_SIZE) {
-                    this.consumerMessage();
+                if(consumerRecordList.size() > MIN_BATCH_SIZE) {
+                    for (ConsumerRecord<Object,Object> consumerRecord : consumerRecords) {
+                        try {
+                            bufferList.put(consumerRecord);
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
+                    }
                     kafkaConsumer.commitSync();
-                    bufferList.clear();
+                    consumerRecordList.clear();
+                    this.consumerMessage();
                 }
             }
         }catch (WakeupException e) {
